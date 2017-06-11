@@ -21,8 +21,11 @@ public class Session {
     }
 
     public void setLogin(String login) {
-        editor.putString("email", login);
+        editor.putString("login", login);
         editor.commit();
+    }
+    public String getLogin() {
+        return prefs.getString("login", null);
     }
 
     public String getName() {
