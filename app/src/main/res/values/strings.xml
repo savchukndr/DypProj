@@ -19,4 +19,6 @@
     <string name="send_btn">Send</string>
     <string name="comment_edit">Comment:</string>
     <string name="location_btn">Get location</string>
+    <string name="image_label">Photo:</string>
+    <string name="make_photo_btn">Capture photo</string>
 </resources>
