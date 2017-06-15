@@ -8,9 +8,11 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.RequiresApi;
@@ -35,8 +37,15 @@ import com.example.savch.dypproj.session.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,13 +64,11 @@ public class MainActivity extends AppCompatActivity {
     private String mCurrentPhotoPath;
     private Uri photoURI;
     private String base64 = "";
+    private Socket socket;
+    MainActivity mna;
 
-    /*private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
-    }*/
+    private static final int SERVER_PORT = 1994;
+    private static final String SERVER_IP = "192.168.1.103";
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -109,14 +116,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
-            //Bundle extras = data.getExtras();
-            //Bitmap imageBitmap = (Bitmap) extras.get("data");
-            //photoImage.setImageBitmap(imageBitmap);
             photoImage.setImageURI(Uri.parse(mCurrentPhotoPath));
             //TODO : set progress bar
             base64 = new Base64Utils(mCurrentPhotoPath).getBase64();
             try {
-                json.put("image", base64);
+                String b2 = "data:image\\jpeg;base64," + base64;
+                        json.put("image", base64);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -130,6 +135,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Policy for unblock android guard
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         //JSON object initialisation
         json = new JSONObject();
@@ -158,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
 
         //ImageView objects
         photoImage = (ImageView) findViewById(R.id.photoView);
+
+
 
         //put login, name and comment into JSON object
         try {
@@ -226,8 +237,20 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 String jsonSTR = json.toString();
-                Snackbar.make(view, jsonSTR, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                String hello = "Hello computer!";
+                /*Snackbar.make(view, jsonSTR, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();*/
+                Socket socket;
+                byte[] jsonByteArr = jsonSTR.getBytes();
+                try {
+                    socket = new Socket(SERVER_IP,SERVER_PORT);
+                    DataOutputStream outStream = new DataOutputStream(socket.getOutputStream());
+                    outStream.writeInt(jsonByteArr.length);
+                    outStream.write(jsonByteArr);
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -274,4 +297,52 @@ public class MainActivity extends AppCompatActivity {
         finish();
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
     }
+
+    /*class ClientThread implements Runnable {
+        @Override
+        public void run() {
+            try {
+                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+                socket = new Socket(serverAddr, SERVERPORT);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }*/
+    /*private class DownloadFilesTask extends AsyncTask<String, Integer> {
+        @Override
+        protected Object doInBackground(Object[] params) {
+            try {
+                String servIP = (String) params[0];
+                int servPort = (Integer) params[1];
+                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+                socket = new Socket(serverAddr, SERVERPORT);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        }
+    }*/
+    /*class MyTask extends AsyncTask<Void,Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
+                socket = new Socket(serverAddr, SERVERPORT);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+        }
+    }*/
+
 }
