@@ -15,6 +15,13 @@ import com.example.savch.dypproj.R;
 import com.example.savch.dypproj.base.MySQLAdapter;
 import com.example.savch.dypproj.session.Session;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
@@ -27,12 +34,45 @@ public class LoginActivity extends AppCompatActivity {
     private Session session;
     private String userName;
     private String userSurName;
+    private JSONObject json;
+    private static final int SERVER_PORT = 1994;
+    private static final String SERVER_IP = "192.168.43.16";
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        class SocketThread implements Runnable {
+            @Override
+            public void run() {
+                json = new JSONObject();
+                try {
+                    json.put("updateUserDb", "true");
+                    //TODO: receive updateed SQL data
+                    json.put("greeting", "Hello World!");
+                    String jsonSTR = json.toString();
+                    Socket socket;
+                    byte[] jsonByteArr = jsonSTR.getBytes();
+                    try {
+                        socket = new Socket(SERVER_IP, SERVER_PORT);
+                        DataOutputStream outStream = new DataOutputStream(socket.getOutputStream());
+                        outStream.writeInt(jsonByteArr.length);
+                        outStream.write(jsonByteArr);
+                        socket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        SocketThread socket = new SocketThread();
+        Thread thread = new Thread(socket);
+        thread.start();
 
         session = new Session(this);
         if (session.loggedin()) {
@@ -57,6 +97,9 @@ public class LoginActivity extends AppCompatActivity {
         dbHelper = new MySQLAdapter(this);
         ProgressDialog mConnectionProgressDialog = new ProgressDialog(this);
         mConnectionProgressDialog.setMessage("Signing in...");
+
+
+
     }
 
 

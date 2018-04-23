@@ -3,30 +3,18 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
 
-    <color name="colorAccent">#FFFFFF</color>
+    <color name="colorAccent">#303F9F</color>
 
     <!--<color name="primary">#E43F3F</color>
     <color name="primary_dark">#E12929</color>
     <color name="primary_darker">#CC1D1D</color>-->
-    <color name="accent">#FFFFFF</color>
 
-    <color name="black">#000000</color>
-    <color name="jet">#84FFFF</color>
-    <color name="oil">#333333</color>
     <color name="monsoon">#0097A7</color>
-    <color name="jumbo">#00BCD4</color>
     <color name="aluminum">#00BCD4</color>
     <color name="base">#4DD0E1</color>
     <color name="iron">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
 
-
-    <color name="date">#FFFFFF</color>
-    <color name="amount">#00E5FF</color>
-
-    <color name="amount_green">#558B2F</color>
-    <color name="amount_red">#D84315</color>
-    <color name="amount_yellow">#FF8F00</color>
 
     <color name="btn_color">#FF8F00</color>
 </resources>

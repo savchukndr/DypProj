@@ -5,31 +5,26 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.app.ProgressDialog;
 
 import com.example.savch.dypproj.login.LoginActivity;
 import com.example.savch.dypproj.session.Session;
@@ -37,38 +32,32 @@ import com.example.savch.dypproj.session.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
+    static final int REQUEST_TAKE_PHOTO = 1;
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final String[] LOCATION_PERMS = {
+            Manifest.permission.ACCESS_FINE_LOCATION
+    };
+    private static final int LOCATION_REQUEST = 1340;
+    private static final int SERVER_PORT = 1994;
+    private static final String SERVER_IP = "192.168.43.16";
+    MainActivity mna;
     private Context context;
     private Session session;
     private String resultGPS = "";
     private GPSTracker gps;
     private JSONObject json;
-    static final int REQUEST_TAKE_PHOTO = 1;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final String[] LOCATION_PERMS={
-            Manifest.permission.ACCESS_FINE_LOCATION
-    };
-    private static final int LOCATION_REQUEST = 1340;
     private ImageView photoImage;
     private String mCurrentPhotoPath;
     private Uri photoURI;
     private String base64 = "";
     private Socket socket;
-    MainActivity mna;
-
-    private static final int SERVER_PORT = 1994;
-    private static final String SERVER_IP = "192.168.1.103";
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -121,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             base64 = new Base64Utils(mCurrentPhotoPath).getBase64();
             try {
                 String b2 = "data:image\\jpeg;base64," + base64;
-                        json.put("image", base64);
+                json.put("image", base64);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -168,10 +157,9 @@ public class MainActivity extends AppCompatActivity {
         //ImageView objects
         photoImage = (ImageView) findViewById(R.id.photoView);
 
-
-
         //put login, name and comment into JSON object
         try {
+            json.put("updateUserDb", "false");
             json.put("login", textUserLogin.getText().toString());
             json.put("name", textUserName.getText().toString());
             json.put("localiztion", "");
@@ -182,41 +170,69 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("JSON ERROR: " + e);
         }
 
+        gps = new GPSTracker(MainActivity.this);
+        if (gps.canGetLocation()) {
+
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+            String strlat = String.valueOf(latitude);
+            String strLong = String.valueOf(longitude);
+
+            //create localization coordinates string
+            resultGPS = strlat.substring(0, 5) + " " + strLong.substring(0, 5);
+            try {
+                json.put("localiztion", resultGPS);
+            } catch (JSONException e) {
+                System.out.println("JSON ERROR: " + e);
+            }
+            textUserLocal.setText(resultGPS);
+        } else {
+            // can't get location
+            // GPS or Network is not enabled
+            // Ask user to enable GPS/network in settings
+            try {
+                json.put("localiztion", null);
+            } catch (JSONException e) {
+                System.out.println("JSON ERROR: " + e);
+            }
+            gps.showSettingsAlert();
+        }
+
 
         //Location button listener
         _buttonLocation.setOnClickListener(new View.OnClickListener() {
 
-               @Override
-               public void onClick(View arg0) {
-                   gps = new GPSTracker(MainActivity.this);
-                   if(gps.canGetLocation()){
+            @Override
+            public void onClick(View arg0) {
+                gps = new GPSTracker(MainActivity.this);
+                if (gps.canGetLocation()) {
 
-                       double latitude = gps.getLatitude();
-                       double longitude = gps.getLongitude();
-                       String strlat = String.valueOf(latitude);
-                       String strLong = String.valueOf(longitude);
+                    double latitude = gps.getLatitude();
+                    double longitude = gps.getLongitude();
+                    String strlat = String.valueOf(latitude);
+                    String strLong = String.valueOf(longitude);
 
-                       //create localization coordinates string
-                       resultGPS = strlat.substring(0, 5) + " " + strLong.substring(0, 5);
-                       try {
-                           json.put("localiztion", resultGPS);
-                       } catch (JSONException e) {
-                           System.out.println("JSON ERROR: " + e);
-                       }
-                       textUserLocal.setText(resultGPS);
-                   }else{
-                       // can't get location
-                       // GPS or Network is not enabled
-                       // Ask user to enable GPS/network in settings
-                       try {
-                           json.put("localiztion", null);
-                       } catch (JSONException e) {
-                           System.out.println("JSON ERROR: " + e);
-                       }
-                       gps.showSettingsAlert();
-                   }
-               }
-           });
+                    //create localization coordinates string
+                    resultGPS = strlat.substring(0, 5) + " " + strLong.substring(0, 5);
+                    try {
+                        json.put("localiztion", resultGPS);
+                    } catch (JSONException e) {
+                        System.out.println("JSON ERROR: " + e);
+                    }
+                    textUserLocal.setText(resultGPS);
+                } else {
+                    // can't get location
+                    // GPS or Network is not enabled
+                    // Ask user to enable GPS/network in settings
+                    try {
+                        json.put("localiztion", null);
+                    } catch (JSONException e) {
+                        System.out.println("JSON ERROR: " + e);
+                    }
+                    gps.showSettingsAlert();
+                }
+            }
+        });
 
 
         _buttonPhoto.setOnClickListener(new View.OnClickListener() {
@@ -237,13 +253,12 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 String jsonSTR = json.toString();
-                String hello = "Hello computer!";
-                /*Snackbar.make(view, jsonSTR, Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();*/
+                Snackbar.make(view, "Sent", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
                 Socket socket;
                 byte[] jsonByteArr = jsonSTR.getBytes();
                 try {
-                    socket = new Socket(SERVER_IP,SERVER_PORT);
+                    socket = new Socket(SERVER_IP, SERVER_PORT);
                     DataOutputStream outStream = new DataOutputStream(socket.getOutputStream());
                     outStream.writeInt(jsonByteArr.length);
                     outStream.write(jsonByteArr);
@@ -292,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void logOut(){
+    private void logOut() {
         session.setLoggedin(false);
         finish();
         startActivity(new Intent(MainActivity.this, LoginActivity.class));

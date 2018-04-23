@@ -16,7 +16,6 @@
     <string name="login_label">Login:</string>
     <string name="localization_label">Localization:</string>
     <string name="name_label">Name:</string>
-    <string name="send_btn">Send</string>
     <string name="comment_edit">Comment:</string>
     <string name="location_btn">Get location</string>
     <string name="image_label">Photo:</string>
