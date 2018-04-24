@@ -1,10 +1,14 @@
 package com.example.savch.dypproj.login;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,25 +22,29 @@ import com.example.savch.dypproj.session.Session;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
     private static final int RC_SIGN_IN = 9001;
-    final String LOG_TAG = "myLogs";
+    final String LOG_TAG = "LOG_AAAA";
     MySQLAdapter dbHelper;
-
+    Context context;
     private EditText _loginText;
     private EditText _passwordText;
     private Session session;
     private String userName;
     private String userSurName;
     private JSONObject json;
+    private Handler mHandler;
     private static final int SERVER_PORT = 1994;
     private static final String SERVER_IP = "192.168.43.16";
+    private final int CLIENT_SERVER_PORT = 1996;
 
 
     @Override
@@ -44,14 +52,22 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        mHandler = new Handler();
+
         class SocketThread implements Runnable {
             @Override
             public void run() {
+                greetingWithServer();
+                userDataBaseUpdate();
+                Log.d(LOG_TAG, "Greating done.");
+            }
+
+            private void greetingWithServer(){
                 json = new JSONObject();
                 try {
                     json.put("updateUserDb", "true");
                     //TODO: receive updateed SQL data
-                    json.put("greeting", "Hello World!");
+                    json.put("greeting", "Hello server!");
                     String jsonSTR = json.toString();
                     Socket socket;
                     byte[] jsonByteArr = jsonSTR.getBytes();
@@ -68,11 +84,25 @@ public class LoginActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        }
 
-        SocketThread socket = new SocketThread();
-        Thread thread = new Thread(socket);
-        thread.start();
+            private void userDataBaseUpdate(){
+                try {
+                    ServerSocket socket = new ServerSocket(CLIENT_SERVER_PORT);
+                    Socket clientSocket = socket.accept();
+                    DataInputStream inStream = new DataInputStream(clientSocket.getInputStream());
+                    int length = inStream.readInt();
+                    String s = "";
+                    if(length>0) {
+                        byte[] message = new byte[length];
+                        inStream.readFully(message, 0, message.length); // read the message
+                        s = new String(message);
+                    }
+                    Log.d(LOG_TAG, s);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
         session = new Session(this);
         if (session.loggedin()) {
@@ -93,6 +123,10 @@ public class LoginActivity extends AppCompatActivity {
                 login();
             }
         });
+
+        SocketThread socket = new SocketThread();
+        Thread thread = new Thread(socket);
+        thread.start();
 
         dbHelper = new MySQLAdapter(this);
         ProgressDialog mConnectionProgressDialog = new ProgressDialog(this);
