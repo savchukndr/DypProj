@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/DypProj.iml" filepath="$PROJECT_DIR$/DypProj.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jBCrypt-0.4.1/jBCrypt-0.4.1.iml" filepath="$PROJECT_DIR$/jBCrypt-0.4.1/jBCrypt-0.4.1.iml" />
     </modules>
   </component>
 </project>

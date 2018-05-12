@@ -273,11 +273,15 @@ public class LoginActivity extends AppCompatActivity {
 
             do {
                 if (cursor.getString(cursor.getColumnIndex("login")).equals(login)) {
-                    if (cursor.getString(cursor.getColumnIndex("password")).equals(password)) {
-                        records_Exist = true;
-                        userName = cursor.getString(cursor.getColumnIndex("name"));
-                        userSurName = cursor.getString(cursor.getColumnIndex("surname"));
-                        break;
+                    try {
+                        if (AESCrypt.decrypt(cursor.getString(cursor.getColumnIndex("password"))).equals(password)) {
+                            records_Exist = true;
+                            userName = cursor.getString(cursor.getColumnIndex("name"));
+                            userSurName = cursor.getString(cursor.getColumnIndex("surname"));
+                            break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 //}
