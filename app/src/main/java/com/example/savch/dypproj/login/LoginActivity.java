@@ -16,8 +16,11 @@ import android.widget.Toast;
 
 import com.example.savch.dypproj.MainActivity;
 import com.example.savch.dypproj.R;
-import com.example.savch.dypproj.base.MySQLAdapter;
+import com.example.savch.dypproj.base.SQLAdapter;
 import com.example.savch.dypproj.session.Session;
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,15 +28,18 @@ import org.json.JSONObject;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
     private static final int RC_SIGN_IN = 9001;
     final String LOG_TAG = "LOG_AAAA";
-    MySQLAdapter dbHelper;
+    SQLAdapter dbHelper;
     Context context;
     private EditText _loginText;
     private EditText _passwordText;
@@ -45,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final int SERVER_PORT = 1994;
     private static final String SERVER_IP = "192.168.43.16";
     private final int CLIENT_SERVER_PORT = 1996;
+    private String jsonMessageFromServer = "";
 
 
     @Override
@@ -57,51 +64,67 @@ public class LoginActivity extends AppCompatActivity {
         class SocketThread implements Runnable {
             @Override
             public void run() {
-                greetingWithServer();
-                userDataBaseUpdate();
-                Log.d(LOG_TAG, "Greating done.");
-            }
-
-            private void greetingWithServer(){
-                json = new JSONObject();
                 try {
-                    json.put("updateUserDb", "true");
-                    //TODO: receive updateed SQL data
-                    json.put("greeting", "Hello server!");
-                    String jsonSTR = json.toString();
-                    Socket socket;
-                    byte[] jsonByteArr = jsonSTR.getBytes();
-                    try {
-                        socket = new Socket(SERVER_IP, SERVER_PORT);
-                        DataOutputStream outStream = new DataOutputStream(socket.getOutputStream());
-                        outStream.writeInt(jsonByteArr.length);
-                        outStream.write(jsonByteArr);
-                        socket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    greetingWithServer();
+                    receiveMessage();
+                    Log.d(LOG_TAG, "Greating done.");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
 
-            private void userDataBaseUpdate(){
+            private void greetingWithServer() throws JSONException {
+                json = new JSONObject();
+                json.put("updateUserDb", "true");
+                //TODO: receive updateed SQL data
+                json.put("greeting", "Hello server!");
+                String jsonSTR = json.toString();
+                Socket socket;
+                byte[] jsonByteArr = jsonSTR.getBytes();
+                try {
+                    socket = new Socket(SERVER_IP, SERVER_PORT);
+                    DataOutputStream outStream = new DataOutputStream(socket.getOutputStream());
+                    outStream.writeInt(jsonByteArr.length);
+                    outStream.write(jsonByteArr);
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            private void receiveMessage(){
                 try {
                     ServerSocket socket = new ServerSocket(CLIENT_SERVER_PORT);
                     Socket clientSocket = socket.accept();
                     DataInputStream inStream = new DataInputStream(clientSocket.getInputStream());
                     int length = inStream.readInt();
-                    String s = "";
                     if(length>0) {
                         byte[] message = new byte[length];
                         inStream.readFully(message, 0, message.length); // read the message
-                        s = new String(message);
+                        jsonMessageFromServer = new String(message);
+
+                        //open and insert into employee table
+                        dbHelper.openToWrite();
+                        dbHelper.dropTable();
+                        dbHelper.createTable();
+                        dbHelper.insertUser(jsonMessageFromServer);
+
+
+                        ////////
+//                        Gson gson = new Gson();
+//                        Type type = new TypeToken<HashMap<String, HashMap<String, String>>>(){}.getType();
+//                        HashMap<String, HashMap<String, String>> myMap = gson.fromJson(jsonMessageFromServer, type);
+//                        Log.d(LOG_TAG, "nnn " + String.valueOf(myMap));
                     }
-                    Log.d(LOG_TAG, s);
+//                    Log.d(LOG_TAG, jsonMessageFromServer);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+            
+//            private void jsonHandler() throws JSONException {
+//                json = new JSONObject(jsonMessageFromServer);
+//            }
         }
 
         session = new Session(this);
@@ -124,11 +147,18 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+
+        dbHelper = new SQLAdapter(this);
         SocketThread socket = new SocketThread();
         Thread thread = new Thread(socket);
         thread.start();
+//        try {
+//            thread.join();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
-        dbHelper = new MySQLAdapter(this);
+
         ProgressDialog mConnectionProgressDialog = new ProgressDialog(this);
         mConnectionProgressDialog.setMessage("Signing in...");
 
