@@ -20,4 +20,10 @@
     <string name="location_btn">Get location</string>
     <string name="image_label">Photo:</string>
     <string name="make_photo_btn">Capture photo</string>
+    <string name="spinner_chain_label">Chain store:</string>
+    <string name="spinner_chain_title">Chain store</string>
+    <string name="spinner_store_label">Store:</string>
+    <string name="spinner_store_title">Store</string>
+    <string name="spinner_shelf_label">Shelf amount:</string>
+    <string name="spinner_shelf_title">Shelf amount</string>
 </resources>

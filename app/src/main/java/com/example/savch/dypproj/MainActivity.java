@@ -21,9 +21,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.savch.dypproj.login.LoginActivity;
@@ -36,9 +39,11 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final String[] LOCATION_PERMS = {
@@ -46,18 +51,20 @@ public class MainActivity extends AppCompatActivity {
     };
     private static final int LOCATION_REQUEST = 1340;
     private static final int SERVER_PORT = 1994;
-    private static final String SERVER_IP = "192.168.43.16";
+    private static final String SERVER_IP = "192.168.0.16";
     MainActivity mna;
     private Context context;
     private Session session;
-    private String resultGPS = "";
     private GPSTracker gps;
     private JSONObject json;
     private ImageView photoImage;
-    private String mCurrentPhotoPath;
     private Uri photoURI;
-    private String base64 = "";
+    private String mCurrentPhotoPath, base64 = "",
+            resultGPS = "", state[] = null,
+            selectedChain, selectedStore, selectedShelf;
     private Socket socket;
+    private List<String> categories, stores, shelfs;
+    private Spinner spinnerChain, spinnerStore, spinnerShelf;
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -149,6 +156,41 @@ public class MainActivity extends AppCompatActivity {
         //EditText objects
         final EditText editComment = (EditText) findViewById(R.id.textCommentEdit);
 
+        //Spinners
+        spinnerChain = (Spinner) findViewById(R.id.spinner_chain);
+        spinnerStore = (Spinner) findViewById(R.id.spinner_store);
+        spinnerShelf = (Spinner) findViewById(R.id.spinner_shelf);
+        // Spinner Drop down elements
+
+        categories = new ArrayList<>();
+        categories.add("Biedronka");
+        categories.add("Zabka");
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerChain.setAdapter(dataAdapter);
+        spinnerChain.setOnItemSelectedListener(this);
+        List<String> shelfs = new ArrayList<>();
+        shelfs.add("1");
+        shelfs.add("2");
+        shelfs.add("3");
+        shelfs.add("4");
+        shelfs.add("5");
+        shelfs.add("6");
+        ArrayAdapter<String> dataAdapter1 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, shelfs);
+        dataAdapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerShelf.setAdapter(dataAdapter1);
+        spinnerShelf.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedShelf = (String) parent.getItemAtPosition(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         //Button objects
         Button _buttonLocation = (Button) findViewById(R.id.loc_button);
         Button _buttonPhoto = (Button) findViewById(R.id.photo_btn);
@@ -162,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
             json.put("updateUserDb", "false");
             json.put("login", textUserLogin.getText().toString());
             json.put("name", textUserName.getText().toString());
-            json.put("localiztion", "");
+            json.put("localization", "");
             json.put("comment", "");
             //TODO: alert if base64 is null
             json.put("image", base64);
@@ -181,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
             //create localization coordinates string
             resultGPS = strlat.substring(0, 5) + " " + strLong.substring(0, 5);
             try {
-                json.put("localiztion", resultGPS);
+                json.put("localization", resultGPS);
             } catch (JSONException e) {
                 System.out.println("JSON ERROR: " + e);
             }
@@ -191,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
             // GPS or Network is not enabled
             // Ask user to enable GPS/network in settings
             try {
-                json.put("localiztion", null);
+                json.put("localization", null);
             } catch (JSONException e) {
                 System.out.println("JSON ERROR: " + e);
             }
@@ -215,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
                     //create localization coordinates string
                     resultGPS = strlat.substring(0, 5) + " " + strLong.substring(0, 5);
                     try {
-                        json.put("localiztion", resultGPS);
+                        json.put("localization", resultGPS);
                     } catch (JSONException e) {
                         System.out.println("JSON ERROR: " + e);
                     }
@@ -225,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
                     // GPS or Network is not enabled
                     // Ask user to enable GPS/network in settings
                     try {
-                        json.put("localiztion", null);
+                        json.put("localization", null);
                     } catch (JSONException e) {
                         System.out.println("JSON ERROR: " + e);
                     }
@@ -249,6 +291,9 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try {
                     json.put("comment", editComment.getText().toString());
+                    json.put("chainStore", selectedChain);
+                    json.put("store", selectedStore);
+                    json.put("shelf", selectedShelf);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -311,6 +356,37 @@ public class MainActivity extends AppCompatActivity {
         session.setLoggedin(false);
         finish();
         startActivity(new Intent(MainActivity.this, LoginActivity.class));
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        //TODO: select from table and get store list
+        selectedChain = (String) parent.getItemAtPosition(position);
+        if (position == 0){
+            state = new String[]{"Biedronka1", "Biedronka2", "Biedronka3"};
+        }
+        if (position == 1){
+            state = new String[]{"Zabka1", "Zabka2", "Zabka3"};
+        }
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, state);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStore.setAdapter(dataAdapter);
+        spinnerStore.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedStore = (String) parent.getItemAtPosition(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 
     /*class ClientThread implements Runnable {
