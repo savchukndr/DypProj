@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.icu.text.DateFormat;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Build;
@@ -61,7 +62,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Uri photoURI;
     private String mCurrentPhotoPath, base64 = "",
             resultGPS = "", state[] = null,
-            selectedChain, selectedStore, selectedShelf;
+            selectedChain, selectedStore, selectedShelf,
+            dateTime;
     private Socket socket;
     private List<String> categories, stores, shelfs;
     private Spinner spinnerChain, spinnerStore, spinnerShelf;
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.M)
+    @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,6 +137,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //Policy for unblock android guard
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        //Get date and time
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        dateTime = dateFormat.format(date);
 
         //JSON object initialisation
         json = new JSONObject();
@@ -294,6 +301,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     json.put("chainStore", selectedChain);
                     json.put("store", selectedStore);
                     json.put("shelf", selectedShelf);
+                    json.put("date", dateTime);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
