@@ -26,4 +26,6 @@
     <string name="spinner_store_title">Store</string>
     <string name="spinner_shelf_label">Shelf amount:</string>
     <string name="spinner_shelf_title">Shelf amount</string>
+    <string name="spinner_agreement_label">Agreement:</string>
+    <string name="spinner_agreement_title">Agreement</string>
 </resources>

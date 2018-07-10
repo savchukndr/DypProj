@@ -62,11 +62,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Uri photoURI;
     private String mCurrentPhotoPath, base64 = "",
             resultGPS = "", state[] = null,
-            selectedChain, selectedStore, selectedShelf,
+            selectedAgreement, selectedChain, selectedStore, selectedShelf,
             dateTime;
     private Socket socket;
     private List<String> categories, stores, shelfs;
-    private Spinner spinnerChain, spinnerStore, spinnerShelf;
+    private Spinner spinnerAgreement, spinnerChain, spinnerStore, spinnerShelf;
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -164,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         final EditText editComment = (EditText) findViewById(R.id.textCommentEdit);
 
         //Spinners
+        spinnerAgreement = (Spinner) findViewById(R.id.spinner_agreement);
         spinnerChain = (Spinner) findViewById(R.id.spinner_chain);
         spinnerStore = (Spinner) findViewById(R.id.spinner_store);
         spinnerShelf = (Spinner) findViewById(R.id.spinner_shelf);
@@ -176,6 +177,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerChain.setAdapter(dataAdapter);
         spinnerChain.setOnItemSelectedListener(this);
+
+        //Shelfs
         List<String> shelfs = new ArrayList<>();
         shelfs.add("1");
         shelfs.add("2");
@@ -197,6 +200,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
+
+        //Agreement
+        List<String> agreements = new ArrayList<>();
+        agreements.add("Agreement 1");
+        agreements.add("Agreement 2");
+        agreements.add("Agreement 3");
+        ArrayAdapter<String> dataAdapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, agreements);
+        dataAdapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAgreement.setAdapter(dataAdapter2);
+        spinnerAgreement.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedAgreement = (String) parent.getItemAtPosition(position);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
 
         //Button objects
         Button _buttonLocation = (Button) findViewById(R.id.loc_button);
@@ -298,6 +322,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onClick(View view) {
                 try {
                     json.put("comment", editComment.getText().toString());
+                    json.put("agreement", selectedAgreement);
                     json.put("chainStore", selectedChain);
                     json.put("store", selectedStore);
                     json.put("shelf", selectedShelf);

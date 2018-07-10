@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
@@ -90,6 +92,13 @@ public class LoginActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+
+            //Split json message into two different jsons
+            private List<String> splitJsonMessage(){
+                List<String> list = new ArrayList<>();
+
+                return list;
             }
 
             private void receiveMessage(){

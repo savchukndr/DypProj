@@ -10,26 +10,25 @@
 
     <TextView
         android:id="@+id/textLogin"
-        android:layout_width="40dp"
-        android:layout_height="21dp"
-        android:text="@string/login_label"
-        tools:ignore="MissingConstraints"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="79dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        android:layout_marginTop="30dp"
+        android:text="@string/login_label"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/textLocal"
-        android:layout_width="88dp"
-        android:layout_height="19dp"
-        android:text="@string/localization_label"
-        tools:ignore="MissingConstraints"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@+id/textName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginRight="0dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/localization_label"
         app:layout_constraintRight_toRightOf="@+id/textName"
-        tools:layout_editor_absoluteX="31dp" />
+        app:layout_constraintTop_toBottomOf="@+id/textName"
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/textLoginCh"
@@ -44,36 +43,36 @@
 
     <TextView
         android:id="@+id/textNameCh"
-        android:layout_width="106dp"
-        android:layout_height="19dp"
-        android:text=""
-        tools:ignore="MissingConstraints"
-        app:layout_constraintLeft_toRightOf="@+id/textName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"
+        android:layout_marginTop="0dp"
+        android:text=""
+        app:layout_constraintLeft_toRightOf="@+id/textName"
         app:layout_constraintTop_toTopOf="@+id/textName"
-        android:layout_marginTop="0dp" />
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/textLocalCh"
-        android:layout_width="87dp"
-        android:layout_height="21dp"
-        android:text=""
-        tools:ignore="MissingConstraints"
-        app:layout_constraintLeft_toRightOf="@+id/textLocal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="40dp"
+        android:layout_marginTop="0dp"
+        android:text=""
+        app:layout_constraintLeft_toRightOf="@+id/textLocal"
         app:layout_constraintTop_toTopOf="@+id/textLocal"
-        android:layout_marginTop="0dp" />
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/textComment"
-        android:layout_width="73dp"
-        android:layout_height="20dp"
-        android:text="@string/comment_edit"
-        tools:ignore="MissingConstraints"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@+id/textLocal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginRight="0dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/comment_edit"
         app:layout_constraintRight_toRightOf="@+id/textLocal"
+        app:layout_constraintTop_toBottomOf="@+id/textLocal"
+        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="46dp" />
 
     <EditText
@@ -88,13 +87,13 @@
 
     <TextView
         android:id="@+id/textName"
-        android:layout_width="44dp"
-        android:layout_height="20dp"
-        android:text="@string/name_label"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@+id/textLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginRight="-4dp"
-        app:layout_constraintRight_toRightOf="@+id/textLogin" />
+        android:layout_marginTop="20dp"
+        android:text="@string/name_label"
+        app:layout_constraintRight_toRightOf="@+id/textLogin"
+        app:layout_constraintTop_toBottomOf="@+id/textLogin" />
 
     <Button
         android:id="@+id/loc_button"
@@ -112,9 +111,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/image_label"
-        android:layout_marginTop="42dp"
+        android:layout_marginTop="41dp"
         app:layout_constraintTop_toBottomOf="@+id/textShelf"
-        android:layout_marginRight="9dp"
+        android:layout_marginRight="-2dp"
         app:layout_constraintRight_toRightOf="@+id/textShelf" />
 
     <ImageView
@@ -127,47 +126,75 @@
         app:layout_constraintTop_toTopOf="@+id/textImage"
         android:layout_marginTop="0dp" />
 
+
+
     <TextView
-        android:id="@+id/textChain"
+        android:id="@+id/textAgreement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/spinner_chain_label"
-        android:layout_marginTop="34dp"
+        android:text="@string/spinner_agreement_label"
+        android:layout_marginTop="33dp"
         app:layout_constraintTop_toBottomOf="@+id/textComment"
         android:layout_marginRight="0dp"
         app:layout_constraintRight_toRightOf="@+id/textComment" />
 
     <Spinner
-        android:id="@+id/spinner_chain"
-        android:layout_width="70dp"
+        android:id="@+id/spinner_agreement"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="0dp"
+        android:background="@color/iron"
+        android:prompt="@string/spinner_agreement_title"
+        app:layout_constraintLeft_toRightOf="@+id/textAgreement"
+        app:layout_constraintTop_toTopOf="@+id/textAgreement" />
+
+
+
+
+
+
+    <TextView
+        android:id="@+id/textChain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/spinner_chain_label"
+        android:layout_marginTop="22dp"
+        app:layout_constraintTop_toBottomOf="@+id/textAgreement"
+        android:layout_marginRight="0dp"
+        app:layout_constraintRight_toRightOf="@+id/textAgreement" />
+
+    <Spinner
+        android:id="@+id/spinner_chain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="0dp"
         android:background="@color/iron"
         android:prompt="@string/spinner_chain_title"
         app:layout_constraintLeft_toRightOf="@+id/textChain"
-        android:layout_marginLeft="49dp"
-        app:layout_constraintTop_toTopOf="@+id/textChain"
-        android:layout_marginTop="0dp" />
+        app:layout_constraintTop_toTopOf="@+id/textChain" />
 
     <TextView
         android:id="@+id/textStore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/spinner_store_label"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="22dp"
         app:layout_constraintTop_toBottomOf="@+id/textChain"
-        android:layout_marginRight="2dp"
+        android:layout_marginRight="1dp"
         app:layout_constraintRight_toRightOf="@+id/textChain" />
 
     <Spinner
         android:id="@+id/spinner_store"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="0dp"
         android:background="@color/iron"
         android:prompt="@string/spinner_store_title"
         app:layout_constraintLeft_toRightOf="@+id/textStore"
-        android:layout_marginLeft="51dp"
-        app:layout_constraintTop_toTopOf="@+id/textStore"
-        android:layout_marginTop="0dp" />
+        app:layout_constraintTop_toTopOf="@+id/textStore" />
 
     <TextView
         android:id="@+id/textShelf"
@@ -181,14 +208,14 @@
 
     <Spinner
         android:id="@+id/spinner_shelf"
-        android:layout_width="70dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="41dp"
+        android:layout_marginTop="-1dp"
         android:background="@color/iron"
         android:prompt="@string/spinner_shelf_title"
         app:layout_constraintLeft_toRightOf="@+id/textShelf"
-        android:layout_marginLeft="52dp"
-        app:layout_constraintTop_toTopOf="@+id/textShelf"
-        android:layout_marginTop="0dp" />
+        app:layout_constraintTop_toTopOf="@+id/textShelf" />
 
     <Button
         android:id="@+id/photo_btn"
