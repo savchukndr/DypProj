@@ -120,12 +120,11 @@
         android:id="@+id/photoView"
         android:layout_width="78dp"
         android:layout_height="74dp"
-        app:srcCompat="@android:drawable/btn_star_big_off"
+        app:srcCompat="@drawable/android_gallery_animation_by_maximilian_keppeler"
         app:layout_constraintLeft_toRightOf="@+id/textImage"
         android:layout_marginLeft="40dp"
         app:layout_constraintTop_toTopOf="@+id/textImage"
         android:layout_marginTop="0dp" />
-
 
 
     <TextView

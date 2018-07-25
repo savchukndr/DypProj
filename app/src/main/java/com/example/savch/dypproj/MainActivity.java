@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     };
     private static final int LOCATION_REQUEST = 1340;
     private static final int SERVER_PORT = 1994;
-    private static final String SERVER_IP = "192.168.0.16";
+    private static final String SERVER_IP = "192.168.0.13";
     MainActivity mna;
     private Context context;
     private Session session;
@@ -137,11 +137,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //Policy for unblock android guard
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
-        //Get date and time
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
-        dateTime = dateFormat.format(date);
 
         //JSON object initialisation
         json = new JSONObject();
@@ -320,6 +315,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Get date and time
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd-HH:mm:ss");
+                Date date = new Date();
+                dateTime = dateFormat.format(date);
                 try {
                     json.put("comment", editComment.getText().toString());
                     json.put("agreement", selectedAgreement);

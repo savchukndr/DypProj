@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
     private JSONObject json;
     private Handler mHandler;
     private static final int SERVER_PORT = 1994;
-    private static final String SERVER_IP = "192.168.0.16";
+    private static final String SERVER_IP = "192.168.0.13";
     private final int CLIENT_SERVER_PORT = 1996;
     private String jsonMessageFromServer = "";
 

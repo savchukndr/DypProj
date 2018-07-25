@@ -1,6 +1,6 @@
 <resources>
     <!--App-->
-    <string name="app_name">DypProj</string>
+    <string name="app_name">Visual Control Application</string>
     <string name="action_logout">Log out</string>
 
     <!--LoginActivity-->
