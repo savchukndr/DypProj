@@ -1,10 +1,10 @@
 package com.example.savch.dypproj;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.icu.text.DateFormat;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
@@ -30,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.savch.dypproj.base.SQLAdapter;
 import com.example.savch.dypproj.login.LoginActivity;
 import com.example.savch.dypproj.session.Session;
 
@@ -46,27 +47,23 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     static final int REQUEST_TAKE_PHOTO = 1;
-    static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final String[] LOCATION_PERMS = {
             Manifest.permission.ACCESS_FINE_LOCATION
     };
     private static final int LOCATION_REQUEST = 1340;
     private static final int SERVER_PORT = 1994;
     private static final String SERVER_IP = "192.168.0.13";
-    MainActivity mna;
+    SQLAdapter dbHelper;
     private Context context;
     private Session session;
     private GPSTracker gps;
     private JSONObject json;
     private ImageView photoImage;
-    private Uri photoURI;
     private String mCurrentPhotoPath, base64 = "",
             resultGPS = "", state[] = null,
             selectedAgreement, selectedChain, selectedStore, selectedShelf,
             dateTime;
-    private Socket socket;
-    private List<String> categories, stores, shelfs;
-    private Spinner spinnerAgreement, spinnerChain, spinnerStore, spinnerShelf;
+    private Spinner spinnerStore;
 
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -81,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,
+                Uri photoURI = FileProvider.getUriForFile(this,
                         "com.example.savch.dypproj",
                         photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -115,10 +112,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             photoImage.setImageURI(Uri.parse(mCurrentPhotoPath));
-            //TODO : set progress bar
             base64 = new Base64Utils(mCurrentPhotoPath).getBase64();
             try {
-                String b2 = "data:image\\jpeg;base64," + base64;
                 json.put("image", base64);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -159,13 +154,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         final EditText editComment = (EditText) findViewById(R.id.textCommentEdit);
 
         //Spinners
-        spinnerAgreement = (Spinner) findViewById(R.id.spinner_agreement);
-        spinnerChain = (Spinner) findViewById(R.id.spinner_chain);
+        Spinner spinnerAgreement = (Spinner) findViewById(R.id.spinner_agreement);
+        Spinner spinnerChain = (Spinner) findViewById(R.id.spinner_chain);
         spinnerStore = (Spinner) findViewById(R.id.spinner_store);
-        spinnerShelf = (Spinner) findViewById(R.id.spinner_shelf);
+        Spinner spinnerShelf = (Spinner) findViewById(R.id.spinner_shelf);
         // Spinner Drop down elements
 
-        categories = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         categories.add("Biedronka");
         categories.add("Zabka");
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
@@ -196,11 +191,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        //Agreement
+        //----------------
+        dbHelper = new SQLAdapter(this);
+        dbHelper.openToWrite();
         List<String> agreements = new ArrayList<>();
-        agreements.add("Agreement 1");
-        agreements.add("Agreement 2");
-        agreements.add("Agreement 3");
+        Cursor cursor = dbHelper.queueAllAgreement();
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+
+            do {
+                agreements.add(cursor.getString(cursor.getColumnIndex("title")));
+            } while (cursor.moveToNext()); // Moves to the next row
+        }
+        assert cursor != null;
+        cursor.close();
+        dbHelper.close();
+
         ArrayAdapter<String> dataAdapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, agreements);
         dataAdapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerAgreement.setAdapter(dataAdapter2);
@@ -232,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             json.put("name", textUserName.getText().toString());
             json.put("localization", "");
             json.put("comment", "");
-            //TODO: alert if base64 is null
             json.put("image", base64);
         } catch (JSONException e) {
             System.out.println("JSON ERROR: " + e);
@@ -392,12 +397,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        //TODO: select from table and get store list
         selectedChain = (String) parent.getItemAtPosition(position);
-        if (position == 0){
+        if (position == 0) {
             state = new String[]{"Biedronka1", "Biedronka2", "Biedronka3"};
         }
-        if (position == 1){
+        if (position == 1) {
             state = new String[]{"Zabka1", "Zabka2", "Zabka3"};
         }
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, state);
